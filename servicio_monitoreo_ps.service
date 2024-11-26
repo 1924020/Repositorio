@@ -1,0 +1,14 @@
+[Unit]
+Description=Servicio de monitoreo de procesos
+After=network.target
+
+[Service]
+ExecStart=/bin/bash /home/monitoreo_ps.sh
+Restart=on-failure
+User=root
+WorkingDirectory=/home
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
