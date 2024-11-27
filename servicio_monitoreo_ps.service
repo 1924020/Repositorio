@@ -3,9 +3,11 @@ Description=Servicio de monitoreo de procesos
 After=network.target
 
 [Service]
+Environment="MONITORING_SERVICE=true"
 ExecStart=/bin/bash /home/monitoreo_ps.sh
 Restart=on-failure
 User=root
+Group=root
 WorkingDirectory=/home
 StandardOutput=journal
 StandardError=journal
