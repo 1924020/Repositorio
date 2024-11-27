@@ -2,6 +2,16 @@
 
 LOG_FILE="/var/log/monitorizacion.log"
 LOCKFILE="/tmp/monitorizacion.lock"
+TEMP_FILE="/tmp/monitoreo_ps_output.txt"  # Archivo temporal para supervisar.sh
+
+# Si el script está siendo ejecutado desde supervisar.sh, habilitar el archivo temporal
+if [ "$MONITORING_SERVICE" != "true" ]; then
+    EXECUTED_BY_SUPERVISAR=true
+    # Crear o limpiar el archivo temporal
+    > "$TEMP_FILE"
+else
+    EXECUTED_BY_SUPERVISAR=false
+fi
 
 log_event() {
     local message="$1"
@@ -9,10 +19,17 @@ log_event() {
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
     logger -t monitorizacion "$message"
     echo "$timestamp - [$level] - $message" >> "$LOG_FILE"
+    
+    # Si se ejecuta desde supervisar.sh, agregar las alertas al archivo temporal
+    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+        echo "$timestamp - [$level] - $message" >> "$TEMP_FILE"
+    fi
 }
 
+# Comprobamos si estamos siendo ejecutados por supervisar.sh o el servicio
 if [ -e "$LOCKFILE" ]; then
     log_event "El script ya se está ejecutando. Saliendo..." "CRITICAL"
+    echo "ALERTA: El script ya se está ejecutando. Saliendo..."  # Salida de alerta crítica para supervisar.sh
     exit 1
 fi
 touch "$LOCKFILE"
@@ -22,8 +39,8 @@ log_event "======================== Inicio de la Supervisión ==================
 
 # 1. Procesos más pesados (CPU y Memoria)
 log_event "Procesos que más CPU y memoria consumen:" "INFO"
-ps aux --sort=-%cpu | head -n 11 | tail -n 5 >> "$LOG_FILE"  # Mejora la forma de mostrar los primeros 5 procesos con más CPU
-ps aux --sort=-%mem | head -n 11 | tail -n 5 >> "$LOG_FILE"  # Mejora la forma de mostrar los primeros 5 procesos con más Memoria
+ps aux --sort=-%cpu | head -n 11 | tail -n 5 >> "$LOG_FILE"
+ps aux --sort=-%mem | head -n 11 | tail -n 5 >> "$LOG_FILE"
 
 # 2. Espacio en disco
 log_event "Revisando espacio en disco..." "INFO"
@@ -31,7 +48,7 @@ df -h --output=source,pcent,avail | grep -E '([0-9]{1,2})%' | awk '{ if ($2+0 > 
 
 # 3. Logs críticos
 log_event "Revisando logs críticos..." "INFO"
-grep -I -iE "error|fail|warn|critical" /var/log/syslog | tail -n 20 >> "$LOG_FILE"
+grep -iE "error|fail|warn|critical" /var/log/syslog | tail -n 20 >> "$LOG_FILE"
 dmesg | grep -iE "error|fail|warn|critical" | tail -n 20 >> "$LOG_FILE"
 
 # 4. Tiempo de actividad
@@ -62,15 +79,21 @@ log_event "Total de servicios fallidos: $total_failed_services" "INFO"
 log_event "Total de servicios inactivos: $total_inactive_services" "INFO"
 
 if [ -n "$failed_services" ]; then
-    log_event "Servicios Fallidos:" "INFO"
     echo "$failed_services" >> "$LOG_FILE"
+    log_event "ALERTA CRÍTICA: Servicios fallidos detectados: $failed_services" "CRITICAL"
+    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+        echo "ALERTA CRÍTICA: Servicios fallidos detectados: $failed_services" >> "$TEMP_FILE"
+    fi
 else
     log_event "No se encontraron servicios fallidos relevantes." "INFO"
 fi
 
 if [ -n "$inactive_services" ]; then
-    log_event "Servicios Inactivos:" "INFO"
     echo "$inactive_services" >> "$LOG_FILE"
+    log_event "ALERTA CRÍTICA: Servicios inactivos detectados: $inactive_services" "CRITICAL"
+    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+        echo "ALERTA CRÍTICA: Servicios inactivos detectados: $inactive_services" >> "$TEMP_FILE"
+    fi
 else
     log_event "No se encontraron servicios inactivos relevantes." "INFO"
 fi
@@ -86,6 +109,9 @@ if [ $? -eq 0 ]; then
     log_event "Conexión a internet: OK" "INFO"
 else
     log_event "Conexión a internet: FALLIDA" "CRITICAL"
+    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+        echo "ALERTA CRÍTICA: Conexión a Internet fallida." >> "$TEMP_FILE"
+    fi
 fi
 
 log_event "Comprobando conectividad al Servidor Local..." "INFO"
@@ -94,6 +120,9 @@ if [ $? -eq 0 ]; then
     log_event "Conexión al servidor local: OK" "INFO"
 else
     log_event "Conexión al servidor local: FALLIDA" "CRITICAL"
+    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+        echo "ALERTA CRÍTICA: Conexión al servidor local fallida." >> "$TEMP_FILE"
+    fi
 fi
 
 # 9. Uso de red
@@ -125,6 +154,9 @@ for file in /etc/passwd /etc/shadow /etc/hosts; do
     echo "$perms" >> "$LOG_FILE"
     if [[ "$perms" =~ ^[0-7]{3}$ && "$perms" -gt 600 ]]; then
         log_event "Permisos inseguros detectados en $file: $perms" "WARNING"
+        if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+            echo "ALERTA CRÍTICA: Permisos inseguros en $file: $perms" >> "$TEMP_FILE"
+        fi
     fi
 done
 
