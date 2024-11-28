@@ -59,7 +59,7 @@ uptime -p >> "$LOG_FILE"
 
 # 5. Supervisión de Servicios Activos
 log_event "======================== Servicios Activos =======================" "INFO"
-active_services=$(systemctl list-units --type=service --state=active --no-pager | awk 'NR>1 {print $1}' | grep -E 'apache2|mysql|nginx|sshd|ufw|network|cups')
+active_services=$(systemctl list-units --type=service --state=active --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
 total_active_services=$(systemctl list-units --type=service --state=active --no-pager | awk 'NR>1 {print $1}' | wc -l)
 
 log_event "Total de servicios activos: $total_active_services" "INFO"
@@ -71,8 +71,8 @@ fi
 
 # 6. Supervisión de Servicios Inactivos o Fallidos
 log_event "======================== Servicios Inactivos o Fallidos =======================" "INFO"
-failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | grep -E 'apache2|mysql|nginx|sshd|ufw|network|cups')
-inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | grep -E 'apache2|mysql|nginx|sshd|ufw|network|cups')
+failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
+inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
 
 total_failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | wc -l)
 total_inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | wc -l)
@@ -82,9 +82,9 @@ log_event "Total de servicios inactivos: $total_inactive_services" "INFO"
 
 if [ -n "$failed_services" ]; then
     echo "$failed_services" >> "$LOG_FILE"
-    log_event "ALERTA CRÍTICA: Servicios fallidos detectados: $failed_services" "CRITICAL"
+    log_event "ALERTA: Servicios fallidos detectados: $failed_services" "CRITICAL"
     if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
-        echo "ALERTA CRÍTICA: Servicios fallidos detectados: $failed_services" >> "$TEMP_FILE"
+        echo "ALERTA: Servicios fallidos detectados: $failed_services" >> "$TEMP_FILE"
     fi
 else
     log_event "No se encontraron servicios fallidos relevantes." "INFO"
@@ -92,9 +92,9 @@ fi
 
 if [ -n "$inactive_services" ]; then
     echo "$inactive_services" >> "$LOG_FILE"
-    log_event "ALERTA CRÍTICA: Servicios inactivos detectados: $inactive_services" "CRITICAL"
+    log_event "ALERTA: Servicios inactivos detectados: $inactive_services" "CRITICAL"
     if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
-        echo "ALERTA CRÍTICA: Servicios inactivos detectados: $inactive_services" >> "$TEMP_FILE"
+        echo "ALERTA: Servicios inactivos detectados: $inactive_services" >> "$TEMP_FILE"
     fi
 else
     log_event "No se encontraron servicios inactivos relevantes." "INFO"
