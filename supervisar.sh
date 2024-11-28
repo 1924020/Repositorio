@@ -3,6 +3,7 @@ LOCKFILE="/tmp/monitorizacion_supervisar.lock"
 # Dirección de correo para las alertas
 ALERT_EMAIL="nohomothoo@gmail.com"
 TEMP_FILE="/tmp/monitoreo_ps_output.txt"  # El archivo temporal donde monitoreo_ps.sh guarda su salida
+umask 000
 
 send_alert() {
     local message="$1"
@@ -29,8 +30,7 @@ touch "$LOCKFILE"
 trap 'rm -f "$LOCKFILE"' EXIT
 
 # Ejecutar monitoreo_ps.sh
-echo "Ejecutando monitoreo_ps.sh..."
-bash /path/to/monitoreo_ps.sh  # Asegúrate de usar la ruta correcta a tu script
+bash /home/monitorizacion/monitoreo_ps.sh
 
 # Verificar si el archivo temporal existe (esto indica que se ejecutó desde supervisar.sh)
 if [ -f "$TEMP_FILE" ]; then
@@ -44,8 +44,8 @@ if [ -f "$TEMP_FILE" ]; then
         echo "No se detectaron alertas críticas."
     fi
     
-    #Borrar el archivo temporal después de enviarlo (para evitar que se acumule)
+    # Opcionalmente, borrar el archivo temporal después de enviarlo (para evitar que se acumule)
     rm -f "$TEMP_FILE"
 else
-    echo "No se generó el archivo temporal. Asegúrate de que monitoreo_ps.sh se ejecute correctamente." > dev/null
+    echo "No se generó el archivo temporal. Asegúrate de que monitoreo_ps.sh se ejecute correctamente."
 fi
