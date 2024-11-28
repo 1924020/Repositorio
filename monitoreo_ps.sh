@@ -1,5 +1,7 @@
 #!/bin/bash
 
+umask 000
+
 LOG_FILE="/var/log/monitorizacion.log"
 LOCKFILE="/tmp/monitorizacion.lock"
 TEMP_FILE="/tmp/monitoreo_ps_output.txt"  # Archivo temporal para supervisar.sh
