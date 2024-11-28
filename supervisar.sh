@@ -44,7 +44,7 @@ if [ -f "$TEMP_FILE" ]; then
         echo "No se detectaron alertas críticas."
     fi
     
-    # Opcionalmente, borrar el archivo temporal después de enviarlo (para evitar que se acumule)
+    # Borrar el archivo temporal después de enviarlo (para evitar que se acumule)
     rm -f "$TEMP_FILE"
 else
     echo "No se generó el archivo temporal. Asegúrate de que monitoreo_ps.sh se ejecute correctamente."
