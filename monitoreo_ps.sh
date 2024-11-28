@@ -69,33 +69,39 @@ else
     log_event "No hay servicios activos relevantes." "INFO"
 fi
 
-# 6. Supervisión de Servicios Inactivos o Fallidos
+ 6. Supervisión de Servicios Inactivos o Fallidos
 log_event "======================== Servicios Inactivos o Fallidos =======================" "INFO"
 failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
 inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
 
-total_failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | wc -l)
-total_inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | wc -l)
+total_failed_services=$(echo "$failed_services" | wc -l)
+total_inactive_services=$(echo "$inactive_services" | wc -l)
 
 log_event "Total de servicios fallidos: $total_failed_services" "INFO"
 log_event "Total de servicios inactivos: $total_inactive_services" "INFO"
 
+# Procesar servicios fallidos individualmente
 if [ -n "$failed_services" ]; then
     echo "$failed_services" >> "$LOG_FILE"
-    log_event "ALERTA: Servicios fallidos detectados: $failed_services" "CRITICAL"
-    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
-        echo "ALERTA: Servicios fallidos detectados: $failed_services" >> "$TEMP_FILE"
-    fi
+    for service in $failed_services; do
+        log_event "ALERTA CRÍTICA: Servicio fallido detectado: $service" "CRITICAL"
+        if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+            echo "ALERTA CRÍTICA: Servicio fallido detectado: $service" >> "$TEMP_FILE"
+        fi
+    done
 else
     log_event "No se encontraron servicios fallidos relevantes." "INFO"
 fi
 
+# Procesar servicios inactivos individualmente
 if [ -n "$inactive_services" ]; then
     echo "$inactive_services" >> "$LOG_FILE"
-    log_event "ALERTA: Servicios inactivos detectados: $inactive_services" "CRITICAL"
-    if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
-        echo "ALERTA: Servicios inactivos detectados: $inactive_services" >> "$TEMP_FILE"
-    fi
+    for service in $inactive_services; do
+        log_event "ALERTA CRÍTICA: Servicio inactivo detectado: $service" "CRITICAL"
+        if [ "$EXECUTED_BY_SUPERVISAR" == "true" ]; then
+            echo "ALERTA CRÍTICA: Servicio inactivo detectado: $service" >> "$TEMP_FILE"
+        fi
+    done
 else
     log_event "No se encontraron servicios inactivos relevantes." "INFO"
 fi
