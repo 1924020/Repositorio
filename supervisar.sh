@@ -16,7 +16,7 @@ send_alert() {
      echo "Content-Type: text/plain; charset=UTF-8"
      echo "MIME-Version: 1.0"
      echo ""
-     echo "ALERTA CRÍTICA [$timestamp]: $message") | msmtp "$ALERT_EMAIL"
+     echo "$message") | msmtp "$ALERT_EMAIL"
 }
 
 # Comprobar si el script ya está en ejecución
@@ -35,7 +35,7 @@ bash /home/monitorizacion/monitoreo_ps.sh
 # Verificar si el archivo temporal existe (esto indica que se ejecutó desde supervisar.sh)
 if [ -f "$TEMP_FILE" ]; then
     # Leer el archivo temporal que contiene las alertas y verificar si hay alertas críticas
-    critical_alerts=$(grep -i "ALERTA CRÍTICA" "$TEMP_FILE")
+    critical_alerts=$(grep -i "CRITICAL" "$TEMP_FILE")
     
     if [ -n "$critical_alerts" ]; then
         # Si hay alertas críticas, enviamos un correo con el contenido del archivo temporal
