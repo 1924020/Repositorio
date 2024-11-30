@@ -74,7 +74,7 @@ else
     log_event "No hay servicios activos relevantes." "INFO"
 fi
 
- 6. Supervisión de Servicios Inactivos o Fallidos
+#6. Supervisión de Servicios Inactivos o Fallidos
 log_event "======================== Servicios Inactivos o Fallidos =======================" "INFO"
 failed_services=$(systemctl list-units --type=service --state=failed --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
 inactive_services=$(systemctl list-units --type=service --state=inactive --no-pager | awk 'NR>1 {print $1}' | grep -E 'zabbix|apache2|mysql|nginx|sshd|ufw|network|cups')
