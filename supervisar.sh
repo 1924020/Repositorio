@@ -5,7 +5,7 @@ ALERT_EMAIL="nohomothoo@gmail.com"
 TEMP_FILE="/tmp/monitoreo_ps_output.txt"  # El archivo temporal donde monitoreo_ps.sh guarda su salida 
 
 umask 000 #Prevenir problemas de permisos
-
+$MONITORING_SERVICE=false;
 send_alert() {
     local message="$1"
     local timestamp=$(date '+%Y-%m-%d %H:%M:%S')
