@@ -51,7 +51,7 @@ ps aux --sort=-%mem | head -n 11 | tail -n 5 >> "$output_file"
 
 # 2. Espacio en disco
 log_event "Revisando espacio en disco..." "INFO"
-df -h --output=source,pcent,avail | grep -E '([0-9]{1,2})%' | awk '{ if ($2+0 > 90) print "Advertencia: La partición " $1 " tiene menos del 10% de espacio libre. Espacio disponible: " $3 }' >> "$output_file"
+df -h --output=source,pcent,avail | grep -E '([0-9]{1,2})%' | awk '{ if ($2+0 > 90) print "CRITICAL: La partición " $1 " tiene menos del 10% de espacio libre. Espacio disponible: " $3 }' >> "$output_file"
 
 # 3. Logs críticos
 log_event "Revisando logs críticos..." "INFO"
