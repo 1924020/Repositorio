@@ -1,0 +1,26 @@
+Explicación del código del gestor de Conexiones Remotas ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧ ⭑｡𖦹°‧
+
+🔍 Explicación de las funcionalidades ( ˶ˆᗜˆ˵ )
+✅ - Interfaz gráfica moderna con Tkinter (ttk). 
+✅ - Conexión a Escritorio Remoto (mstsc en Windows).
+✅ - Conexión a Servidores SSH (ssh en Linux).
+✅ - Uso de claves SSH o contraseñas.
+✅ - Opciones avanzadas (puerto SSH, pantalla completa en RDP, credenciales guardadas).
+✅ - Almacenamiento de configuraciones en config.json.
+
+
+  
+📂 Archivos involucrados ૮₍ ´ ꒳ `₎ა
+1️⃣ - Conexiones.py → Código principal del programa.
+2️⃣ - config.json → Archivo donde se guardan las configuraciones del usuario (host, usuario, etc.).
+
+
+
+📂 Librerías involucradas ⸜(｡˃ ᵕ ˂ )⸝♡
+✅ - tkinter: Para la interfaz gráfica.
+✅ - ttk: Widgets modernos de Tkinter.
+✅ - messagebox: Muestra mensajes emergentes.
+✅ - json: Para guardar y cargar configuraciones.
+✅ - subprocess: Ejecutar comandos de sistema (RDP y SSH).
+✅ - threading: Evita que la interfaz se congele al ejecutar conexiones.
+✅ - os: Manejo de archivos (config.json).

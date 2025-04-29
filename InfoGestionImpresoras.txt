@@ -1,0 +1,14 @@
+Explicación del código del gestor de Impresoras ദ്ദി(˵ •̀ ᴗ - ˵ ) ✧ ⭑｡𖦹°‧
+
+🔍 Explicación de las funcionalidades ( ˶ˆᗜˆ˵ )
+🔹 Compatible con Windows/Linux/macOS
+🔹 Selecciona impresoras y archivos
+🔹 Imprime y gestiona la cola de impresión
+🔹 Interfaz gráfica con tkinter
+
+📂 Librerías involucradas ⸜(｡˃ ᵕ ˂ )⸝♡
+✅ - tkinter: Para la interfaz gráfica.
+✅ - os: Manejo de archivos.
+✅ - platform: Detección del S.O anfitrión.
+✅ - win32print & win32api: Gestion de impresoras en windows.
+✅ - cups: Gestion de impresoras en linux.
